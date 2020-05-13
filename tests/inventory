@@ -1,0 +1,4 @@
+[docker]
+debian ansible_python_interpreter=/usr/bin/python3
+archlinux ansible_python_interpreter=/usr/bin/python3
+centos ansible_python_interpreter=/usr/bin/python

@@ -1,0 +1,34 @@
+---
+
+#
+#
+#
+
+- name: Build containers
+  docker_image:
+    name: "{{ (item | basename).split('.') | first }}"
+    source: build
+    build:
+      path: "{{ item | dirname }}"
+      dockerfile: "{{ item | basename }}"
+      pull: true
+    tag: ansible
+  loop: "{{ lookup('fileglob', '{{ playbook_dir }}/docker/images/*.Dockerfile', wantlist=True) }}"
+  loop_control:
+    label: "{{ (item | basename).split('.') | first }}"
+
+- name: Start containers
+  docker_container:
+    name: "{{ (item | basename).split('.') | first }}"
+    image: "{{ (item | basename).split('.') | first }}:ansible"
+    state: started
+    recreate: no
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+    tmpfs:
+      - /tmp:exec,mode=1777,strictatime
+      - /run/lock
+      - /run
+  loop: "{{ lookup('fileglob', '{{ playbook_dir }}/docker/images/*.Dockerfile', wantlist=True) }}"
+  loop_control:
+    label: "{{ (item | basename).split('.') | first }}"

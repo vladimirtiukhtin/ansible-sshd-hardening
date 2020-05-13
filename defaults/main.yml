@@ -1,0 +1,67 @@
+---
+
+#
+#
+#
+
+## General sshd settings:
+sshd_listen_address: '0.0.0.0'
+sshd_port: '22'
+sshd_log_level: 'INFO'
+
+## Encryption related setting:
+sshd_ciphers:
+  - chacha20-poly1305@openssh.com
+  - aes256-gcm@openssh.com
+  - aes256-ctr
+sshd_kex_algorithms:
+  - curve25519-sha256@libssh.org
+  - curve25519-sha256
+  - ecdh-sha2-nistp256
+  - ecdh-sha2-nistp384
+  - ecdh-sha2-nistp521
+  - diffie-hellman-group-exchange-sha256
+sshd_host_key_algorithms:
+  - ssh-ed25519
+  - ssh-rsa
+sshd_pubkey_accepted_key_types:
+  - ssh-ed25519
+  - ssh-rsa
+
+## Authentication related settings:
+sshd_login_grace_time: '30'
+sshd_client_alive_interval: '300'
+sshd_client_alive_countMax: '0'
+sshd_allow_tcp_forwarding: 'no'
+sshd_allow_agent_forwarding: 'no'
+sshd_permit_empty_passwords: 'no'
+sshd_max_auth_tries: '3'
+sshd_challenge_response_authentication: 'no'
+sshd_permit_root_login: 'no'
+sshd_pubkey_authentication: 'yes'
+sshd_password_authentication: 'no'
+sshd_host_based_authentication: 'no'
+sshd_permit_user_environment: 'no'
+sshd_max_startups: '3'
+sshd_max_sessions: '1'
+sshd_ignore_rhosts: 'yes'
+sshd_allow_users: []
+sshd_allow_groups: []
+sshd_deny_users:
+  - nobody
+sshd_deny_groups:
+  - root
+  - daemon
+sshd_use_pam: 'yes'
+sshd_login_banner_content: |
+  ## This information system is for authorized use only. Unauthorized  ##
+  ##    or improper use of this system may result in administrative    ##
+  ##   disciplinary action, civil charges/criminal penalties, and/or   ##
+  ##     other legal sanctions. By continuing to use the system you    ##
+  ##       indicate your awareness and consent to these terms and      ##
+  ## conditions of use and accept the possibility of all actions to be ##
+  ##                        logged and monitored                       ##
+
+## /etc/hosts.allow and /etc/hosts.deny
+sshd_hosts_allow: []
+sshd_hosts_deny: []

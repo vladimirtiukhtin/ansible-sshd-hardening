@@ -1,0 +1,54 @@
+{{ "Created by Ansible" | comment }}
+
+Protocol               2
+Compression            delayed
+AddressFamily          inet
+Port                   {{ sshd_port }}
+ListenAddress          {{ sshd_listen_address }}
+PidFile                /var/run/sshd.pid
+LogLevel               {{ sshd_log_level }}
+
+Ciphers                {{ sshd_ciphers | join(',') }}
+KexAlgorithms          {{ sshd_kex_algorithms | join(',') }}
+HostKeyAlgorithms      {{ sshd_host_key_algorithms | join(',') }}
+PubkeyAcceptedKeyTypes {{ sshd_pubkey_accepted_key_types | join(',') }}
+
+LoginGraceTime          {{ sshd_login_grace_time }}
+ClientAliveInterval     {{ sshd_client_alive_interval }}
+ClientAliveCountMax     {{ sshd_client_alive_countMax }}
+AllowTcpForwarding      {{ sshd_allow_tcp_forwarding }}
+AllowAgentForwarding    {{ sshd_allow_agent_forwarding }}
+MaxAuthTries            {{ sshd_max_auth_tries }}
+PermitEmptyPasswords    {{ sshd_permit_empty_passwords }}
+PermitRootLogin         {{ sshd_permit_root_login }}
+PubkeyAuthentication    {{ sshd_pubkey_authentication }}
+PasswordAuthentication  {{ sshd_password_authentication }}
+ChallengeResponseAuthentication {{ sshd_challenge_response_authentication }}
+HostbasedAuthentication {{ sshd_host_based_authentication }}
+PermitUserEnvironment   {{ sshd_permit_user_environment }}
+MaxStartups             {{ sshd_max_startups }}
+MaxSessions             {{ sshd_max_sessions }}
+IgnoreRhosts            {{ sshd_ignore_rhosts }}
+{% if sshd_allow_users | length > 0 %}
+AllowUsers              {{ sshd_allow_users | join(' ') }}
+{% endif %}
+{% if sshd_allow_groups | length > 0 %}
+AllowGroups             {{ sshd_allow_groups | join(' ') }}
+{% endif %}
+{% if sshd_deny_users | length > 0 %}
+DenyUsers               {{ sshd_deny_users | join(' ') }}
+{% endif %}
+{% if sshd_deny_groups | length > 0 %}
+DenyGroups              {{ sshd_deny_groups | join(' ') }}
+{% endif %}
+UsePAM                  {{ sshd_use_pam }}
+
+Banner /etc/issue.net
+
+{% if ansible_os_family|lower() == 'debian' %}
+Subsystem sftp /usr/lib/openssh/sftp-server
+{% elif ansible_os_family|lower() == 'redhat' %}
+Subsystem sftp /usr/libexec/openssh/sftp-server
+{% elif ansible_os_family|lower() == 'archlinux' %}
+Subsystem sftp /usr/lib/ssh/sftp-server
+{% endif %}

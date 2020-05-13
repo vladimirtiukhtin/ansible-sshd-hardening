@@ -1,0 +1,23 @@
+---
+
+#
+#
+#
+
+- name: Bring up docker continers
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - include_tasks: "{{ playbook_dir }}/docker/main.yml"
+  tags:
+    - docker
+
+- name: Run tests
+  hosts: docker
+  connection: docker
+  vars_files:
+    - vars.yml
+  roles:
+    - role: "{{ playbook_dir }}/.."
+  tasks: []

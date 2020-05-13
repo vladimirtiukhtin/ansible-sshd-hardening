@@ -1,0 +1,69 @@
+---
+
+#
+#
+#
+
+- name: Make sure sshd is updated to the latest version
+  package:
+    name: "{% if ansible_os_family|lower() == 'archlinux' %}openssh{% else %}openssh-server{% endif %}"
+    state: latest
+  notify: Restart sshd
+
+- name: Manage sshd configuration file
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    backup: true
+    force: yes
+  notify: Restart sshd
+
+- name: Manage sshd pre-login banner
+  copy:
+    content: "{{ sshd_login_banner_content }}"
+    dest: /etc/issue.net
+    backup: true
+    force: yes
+
+- name: Check if sshd is compiled with libwrap
+  shell: |
+    ldd /usr/sbin/sshd
+  register: sshd_libraries
+  changed_when: False
+
+- debug:
+    msg: >-
+      sshd on {{ inventory_hostname }} does not seem to be compiled with libwrap.
+      /etc/hosts.deny and /etc/hosts.allow are not supported
+  when:
+    - sshd_libraries.stdout_lines | select('search','libwrap') | list | count == 0
+
+- name: Manage hosts.allow entries
+  lineinfile:
+    path: /etc/hosts.allow
+    regexp: "sshd : {{ item }}"
+    line: "sshd : {{ item }}"
+    create: true
+    state: present
+  when:
+    - sshd_libraries.stdout_lines | select('search','libwrap') | list | count > 0
+    - sshd_hosts_allow|length > 0
+  loop: "{{ sshd_hosts_allow }}"
+
+- name: Manage hosts.deny entries
+  lineinfile:
+    path: /etc/hosts.deny
+    regexp: "sshd : {{ item }}"
+    line: "sshd : {{ item }}"
+    create: true
+    state: present
+  when:
+    - sshd_libraries.stdout_lines | select('search','libwrap') | list | count > 0
+    - sshd_hosts_deny|length > 0
+  loop: "{{ sshd_hosts_deny }}"
+
+- name: Make sure sshd is enabled
+  service:
+    name: sshd
+    state: started
+    enabled: true
